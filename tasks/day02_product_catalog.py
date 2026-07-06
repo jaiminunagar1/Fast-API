@@ -1,7 +1,13 @@
 from http.client import HTTPException
 
-from fastapi import FastAPI , Query
+from fastapi import FastAPI , Query, APIRouter
 from typing import Literal, Optional
+
+router = APIRouter(
+    prefix="/products",
+    tags=["Products"]
+)
+
 
 products_catalog = [
   {
@@ -76,10 +82,7 @@ products_catalog = [
   }
 ]
 
-app = FastAPI()
-
-
-# @app.get("/products")
+# @router.get("/products")
 # def get_products(category: Optional[str] = None,min_price: Optional[float]= Query(None, gt = 0),max_price: Optional[float] = Query(None, gt = 0),sort: Optional[Literal['asc', 'desc']] = Query(None),limit: Optional[int] = Query(None,gt = 0,le = 51 )):
 
 #     if min_price is not None and max_price is not None:
@@ -123,7 +126,7 @@ app = FastAPI()
 #     return products_catalog
 
 
-@app.get("/products")
+@router.get("/products")
 def get_products(category: Optional[str] = None, 
                  min_price: Optional[float] = Query(None, gt=0), 
                  max_price: Optional[float] = Query(None, gt=0), 
@@ -193,6 +196,3 @@ def get_products(category: Optional[str] = None,
       }
         
 
-if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run('api:app', host='127.0.0.1', port=8000,reload=True)
