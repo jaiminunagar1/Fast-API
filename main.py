@@ -1,5 +1,6 @@
 from tasks.day01_greeting import router as greeting_router
 from tasks.day02_product_catalog import router as product_router
+from tasks.day03_Student_Management_API import router as student_router
 from fastapi import FastAPI
 
 app = FastAPI(
@@ -10,8 +11,7 @@ app = FastAPI(
 
 app.include_router(greeting_router)
 app.include_router(product_router)
-
-
+app.include_router(student_router)
 
 if __name__ == "__main__":
     import uvicorn
