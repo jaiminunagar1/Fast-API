@@ -1,11 +1,24 @@
 
-from fastapi import HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Security, Depends
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 from typing import Optional, Annotated
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
+header_scheme = APIKeyHeader(name="X_API_KEY")
+def verify_api_key(api_key:str = Security(header_scheme)):
+    env_api_key =  os.getenv("X_API_KEY")
+    if api_key == env_api_key:
+        return api_key
+    else:
+        raise HTTPException(status_code=401, detail="Authentication failed.")
+    
 router = APIRouter(
     prefix="/employees",
-    tags=["Employees"]
+    tags=["Employees"],
+    # dependencies=[Depends(verify_api_key)]
 )
 employees = []
 class EmployeeCreate(BaseModel):
@@ -29,7 +42,7 @@ class EmployeeUpdate(BaseModel):
     salary: Optional[Annotated[float, Field(gt=0)]] = None
 
 
-@router.post("/",response_model=EmployeeResponse)
+@router.post("/",response_model=EmployeeResponse, dependencies=[Depends(verify_api_key)])
 def create_employee(employee: EmployeeCreate):
 
     employee_id = len(employees) + 1
@@ -49,7 +62,7 @@ def create_employee(employee: EmployeeCreate):
     return EmployeeResponse(**employee_data)
 
 
-@router.get("/", response_model=list[EmployeeResponse])
+@router.get("/", response_model=list[EmployeeResponse], dependencies=[Depends(verify_api_key)])
 def get_employees():
     if not employees:
         raise HTTPException(status_code=404, detail="No employees found")
@@ -66,7 +79,7 @@ def get_employee(employee_id: int):
         raise HTTPException(status_code=404, detail="Employee not found")
     return EmployeeResponse(**filtered_employes)
 
-@router.put("/{employee_id}", response_model=EmployeeResponse)
+@router.put("/{employee_id}", response_model=EmployeeResponse , dependencies=[Depends(verify_api_key)])
 def update_employee(employee_id: int, employee: EmployeeCreate):
     
     for index, existing_employee in enumerate(employees):
@@ -76,7 +89,7 @@ def update_employee(employee_id: int, employee: EmployeeCreate):
             employees[index] = updated_employee
             return EmployeeResponse(**updated_employee)
         
-@router.patch("/{employee_id}")
+@router.patch("/{employee_id}", dependencies=[Depends(verify_api_key)])
 def partial_update_employee(employee_id: int, employee: EmployeeUpdate):
     
 
@@ -91,7 +104,7 @@ def partial_update_employee(employee_id: int, employee: EmployeeUpdate):
             return EmployeeResponse(**updated_employee)
 
 
-@router.delete("/{employee_id}")
+@router.delete("/{employee_id}", dependencies=[Depends(verify_api_key)])
 def delete_employee(employee_id: int):
     
     # deleted_employee = [employee for employee in employees if employee["id"] == employee_id]
