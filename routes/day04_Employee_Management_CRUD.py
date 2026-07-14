@@ -1,15 +1,15 @@
 
 from fastapi import FastAPI, HTTPException, APIRouter, Security, Depends
+from database.database import employees
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 from typing import Optional, Annotated
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from config.config import API_KEY
 
+
+env_api_key = API_KEY
 header_scheme = APIKeyHeader(name="X_API_KEY")
 def verify_api_key(api_key:str = Security(header_scheme)):
-    env_api_key =  os.getenv("X_API_KEY")
     if api_key == env_api_key:
         return api_key
     else:
@@ -20,7 +20,7 @@ router = APIRouter(
     tags=["Employees"],
     # dependencies=[Depends(verify_api_key)]
 )
-employees = []
+
 class EmployeeCreate(BaseModel):
 
     name: Annotated[str, Field(min_length=3)]

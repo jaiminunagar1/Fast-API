@@ -1,7 +1,7 @@
-from tasks.day01_greeting import router as greeting_router
-from tasks.day02_product_catalog import router as product_router
-from tasks.day03_Student_Management_API import router as student_router
-from tasks.day04_Employee_Management_CRUD import router as employee_router
+from routes.day01_greeting import router as greeting_router
+from routes.day02_product_catalog import router as product_router
+from routes.day03_Student_Management_API import router as student_router
+from routes.day04_Employee_Management_CRUD import router as employee_router
 from fastapi import FastAPI
 
 app = FastAPI(
